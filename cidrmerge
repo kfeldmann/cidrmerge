@@ -7,12 +7,16 @@ import os
 def usage():
     sys.stderr.write( \
         'Usage: ./cidrmerge < cidr_list [cidr_list...] > output\n')
-    raise SystemExit(1)
+    raise SystemExit(2)
 
 def _d(message):
     if os.environ.get('DEBUG'):
         sys.stderr.write('DEBUG: %s\n' % message)
     return None
+
+def _e(message):
+    sys.stderr.write('ERROR: %s\n' % message)
+    raise SystemExit(1)
 
 def __ip_to_int(ipaddr): # return int
     a,b,c,d=ipaddr.split('.')
@@ -99,8 +103,11 @@ while True:
         line = line[:c]
     if line.strip() == '':
         continue
-    _d('%s -> %s' % (line.strip(), __cidr_to_range(line.strip())))
-    ranges.append(__cidr_to_range(line.strip()))
+    try:
+        _d('%s -> %s' % (line.strip(), __cidr_to_range(line.strip())))
+        ranges.append(__cidr_to_range(line.strip()))
+    except ValueError as ex:
+        _e(str(ex))
 
 ranges.sort(None, __first)
 
@@ -125,7 +132,10 @@ while i < len(ranges):
                 b = ranges[i+j-1][1]
             i += (j - 1)
             break
-    for c in  __range_to_cidrs((a, b)):
-        print c
+    try:
+        for c in  __range_to_cidrs((a, b)):
+            print c
+    except ValueError as ex:
+        _e(str(ex))
     i += 1
 
