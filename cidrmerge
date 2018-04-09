@@ -74,6 +74,9 @@ def __cidr_to_range(cidr): # return tuple of 2 ints
     if '/' in cidr:
         ip,maskbits_s = cidr.split('/',1)
         mbits = int(maskbits_s)
+        if mbits < 1 or mbits > 32:
+            raise ValueError( \
+                '[%s] Invalid network mask size: %d' % (cidr, mbits))
         start = __ip_to_int(ip)
         end = start + 2 ** (32 - mbits) - 1
         if start % (2 ** (32 - mbits)) != 0:
