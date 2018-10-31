@@ -1,7 +1,8 @@
 CIDR Merge
 ==========
 
-Merge and de-dupe overlapping or adjacent IP ranges.
+Merge and de-dupe overlapping or adjacent IP ranges. Invalid CIDRs cause
+cidrmerge to print an error and halt.
 
 ```
 $ ./cidrmerge -?
@@ -18,5 +19,8 @@ $
 $ ./cidrmerge < test
 123.10.0.0/16
 123.11.12.0/24
+$ 
+$ echo 10.1.1.1/24 | ./cidrmerge 
+ERROR: [10.1.1.1/24] Invalid starting address for /24. Try 10.1.1.0 or 10.1.2.0
 $ 
 ```
