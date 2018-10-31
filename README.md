@@ -1,8 +1,8 @@
 CIDR Merge
 ==========
 
-Merge and de-dupe overlapping or adjacent IP ranges. Invalid CIDRs cause
-cidrmerge to print an error and halt.
+Merge and de-dupe overlapping or adjacent IP ranges. Invalid CIDRs in
+the input cause cidrmerge to print an error and halt.
 
 ```
 $ ./cidrmerge -?
