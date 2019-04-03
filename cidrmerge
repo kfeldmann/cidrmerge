@@ -40,6 +40,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import sys
 import os
+import copy
 
 def usage():
     """
@@ -155,6 +156,7 @@ def __range_to_cidrs(range_list): # return list of strings
             if remainder > 0:
                 a += consumed
                 span = remainder
+                _d('remainder > 0; new starting point a = %s, span = %s' % (a, span))
                 i = 1
             else:
                 break
@@ -187,14 +189,14 @@ def __compare_ranges(a, b): # return None or tuple
            % (repr(b), repr(a)))
         return None
     # aaaa
-    #   bbbb  <- a/b overlap
-    if a[0] < b[0] and a[1] < b[1] and b[0] <= a[1]:
+    #   bbbb  <- a/b overlap or immediately adjacent
+    if a[0] < b[0] and a[1] < b[1] and b[0] <= a[1]+1:
         _d("__compare_ranges: a/b overlap: a=%s, b=%s" \
            % (repr(a), repr(b)))
         return (a[0], b[1])
     #   aaaa
-    # bbbb    <- b/a overlap
-    if b[0] < a[0] and b[1] < a[1] and a[0] <= b[1]:
+    # bbbb    <- b/a overlap or immediately adjacent
+    if b[0] < a[0] and b[1] < a[1] and a[0] <= b[1]+1:
         _d("__compare_ranges: b/a overlap: a=%s, b=%s" \
            % (repr(a), repr(b)))
         return (b[0], a[1])
@@ -206,6 +208,7 @@ def __compare_ranges(a, b): # return None or tuple
 
 RANGES = []
 OUT_RANGES = []
+ITERATIONS = 0
 
 if len(sys.argv) > 1:
     usage()
@@ -227,18 +230,31 @@ while True:
         _e(str(ex))
 
 # Merge
-for A in RANGES:
-    for B in RANGES:
-        result = __compare_ranges(A, B)
-        if result:
-            _d('Replacing %s with %s' % (repr(A), repr(result)))
-            A = result
-    if not A in OUT_RANGES:
-        _d('Adding %s to the output' % repr(A))
-        OUT_RANGES.append(A)
+while True:
+    ITERATIONS += 1
+    _d('Starting merge iteration %d' % ITERATIONS)
+    RANGES.sort()
+    for A in RANGES:
+        for B in RANGES:
+            result = __compare_ranges(A, B)
+            if result:
+                _d('Replacing %s with %s' % (repr(A), repr(result)))
+                A = copy.deepcopy(result)
+            else:
+                _d('No merge; continue with %s' % repr(A))
+        if not A in OUT_RANGES:
+            _d('Adding %s to the output' % repr(A))
+            OUT_RANGES.append(A)
+        else:
+            _d('%s is already in the output, skipping' % repr(A))
+    if sorted(RANGES) == sorted(OUT_RANGES):
+        break
+    else:
+        RANGES = copy.deepcopy(OUT_RANGES)
+        OUT_RANGES = []
 
 # Output
-for R in OUT_RANGES:
+for R in sorted(OUT_RANGES):
     try:
         for C in  __range_to_cidrs(R):
             sys.stdout.write('%s\n' % C)
