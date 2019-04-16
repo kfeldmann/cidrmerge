@@ -134,14 +134,14 @@ def __range_to_cidrs(range_list): # return list of strings
            % (a, b, __int_to_ip(a)))
         outlist.append('%s/32' % __int_to_ip(a))
         return outlist
-    i = 1
+    i = 0
     while i < 33:
         x = span >> i
         if x == 1:
             while True:
                 if a % (2 ** i) == 0:
                     break
-                elif i == 1:
+                elif i == -1:
                     raise ValueError('Failed to construct a valid CIDR!')
                 else:
                     _d('Invalid mask. Working backwards now to find one that will work.')
@@ -157,7 +157,7 @@ def __range_to_cidrs(range_list): # return list of strings
                 a += consumed
                 span = remainder
                 _d('remainder > 0; new starting point a = %s, span = %s' % (a, span))
-                i = 1
+                i = 0
             else:
                 break
         elif x == 0:
