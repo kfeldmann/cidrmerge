@@ -1,7 +1,7 @@
 CIDR Merge
 ==========
 
-Merge and de-dupe overlapping or adjacent IP ranges. Invalid CIDRs in
+Merge and de-dupe overlapping or adjacent IP ranges (only IPv4). Invalid CIDRs in
 the input cause cidrmerge to print an error and halt.
 
 Please report any use-cases where cidrmerge fails. Thank you!
